@@ -1,0 +1,112 @@
+// สร้างโฟลเดอร์ใหม่
+mkdir ชื่อโฟลเดอร์
+
+// เช็คเวอร์ชัน Docker
+docker -v
+
+// สร้างและรันคอนเทนเนอร์จาก image
+docker run <image_name>
+
+// แสดงคอนเทนเนอร์ทั้งหมด (รวมที่หยุดแล้ว)
+docker ps -a
+
+// แสดงรายการ images ทั้งหมด
+docker images
+
+// หยุดคอนเทนเนอร์
+docker stop <CONTAINER_ID>
+
+// ดาวน์โหลด image จาก Docker Hub
+docker pull <image_name>
+
+// สร้างคอนเทนเนอร์ (ยังไม่รัน) พร้อมคำสั่ง ping
+docker create <image_name> ping google.com
+
+// เริ่มคอนเทนเนอร์ที่ถูกสร้างไว้
+docker start <CONTAINER_ID>
+
+// แสดงเฉพาะคอนเทนเนอร์ที่กำลังรัน
+docker ps
+
+// ลบคอนเทนเนอร์
+docker rm <CONTAINER_ID>
+
+// ลบ container / image / network ที่ไม่ได้ใช้งาน
+docker system prune
+
+// รัน nginx และแมปพอร์ต 80:80
+docker run -p 80:80 nginx
+
+// รัน nginx และแมปพอร์ต 9000:80
+docker run -p 9000:80 nginx
+
+// รัน nginx แบบปกติ
+docker run nginx
+
+// รัน nginx แบบ background และแมปพอร์ต 8000:80
+docker run -d -p 8000:80 nginx
+
+// ดูรายละเอียด image nginx
+docker image inspect nginx
+
+// ลบ image
+docker image rm <image_id_or_name>
+
+// แสดงรายการ images (คำสั่งใหม่)
+docker image ls
+
+
+// ดาวน์โหลด WordPress
+docker pull wordpress
+
+// ดาวน์โหลด MySQL เวอร์ชัน 5.7
+docker pull mysql:5.7
+
+// ดาวน์โหลด phpMyAdmin
+docker pull phpmyadmin/phpmyadmin
+
+
+// สร้าง network ชื่อ wordpress
+docker network create wordpress
+
+// แสดงรายการ network ทั้งหมด
+docker network ls
+
+
+// รัน MySQL Container
+docker run --name mysql \
+--network wordpress \
+-e MYSQL_ROOT_PASSWORD=1111 \
+-e MYSQL_DATABASE=wordpress_db \
+-e MYSQL_USER=wordpress \
+-e MYSQL_PASSWORD=wordpress \
+-d mysql:5.7
+
+
+// รัน phpMyAdmin
+docker run --name pma \
+--network wordpress \
+-p 8888:80 \
+-e PMA_ARBITRARY=1 \
+-d phpmyadmin/phpmyadmin
+
+
+// รัน WordPress
+docker run -d --name wordpress \
+--network wordpress \
+-p 888:80 \
+-e WORDPRESS_DB_HOST=mysql \
+-e WORDPRESS_DB_USER=wordpress \
+-e WORDPRESS_DB_PASSWORD=wordpress \
+-e WORDPRESS_DB_NAME=wordpress_db \
+wordpress
+
+
+// เข้า container แบบ interactive
+docker exec -it <CONTAINER_ID> bash
+
+// ออกจาก container
+exit
+
+// เข้าโฟลเดอร์
+cd ชื่อโฟลเดอร์
