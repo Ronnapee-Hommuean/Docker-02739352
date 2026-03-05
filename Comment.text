@@ -8,6 +8,7 @@ docker -v
 docker run <image_name>
 
 // แสดงคอนเทนเนอร์ทั้งหมด (รวมที่หยุดแล้ว)
+docker ps --all
 docker ps -a
 
 // แสดงรายการ images ทั้งหมด
@@ -31,7 +32,7 @@ docker ps
 // ลบคอนเทนเนอร์
 docker rm <CONTAINER_ID>
 
-// ลบ container / image / network ที่ไม่ได้ใช้งาน
+// ลบ container / image / network ที่ไม่ได้ใช้งาน(ห้ามใช้)
 docker system prune
 
 // รัน nginx และแมปพอร์ต 80:80
@@ -72,7 +73,11 @@ docker network create wordpress
 // แสดงรายการ network ทั้งหมด
 docker network ls
 
+// join network
+docker network connect wordpress mysql
+docker network connect wordpress pma
 
+//แบบที่ 1
 // รัน MySQL Container
 docker run --name mysql \
 --network wordpress \
@@ -82,14 +87,12 @@ docker run --name mysql \
 -e MYSQL_PASSWORD=wordpress \
 -d mysql:5.7
 
-
 // รัน phpMyAdmin
 docker run --name pma \
 --network wordpress \
 -p 8888:80 \
 -e PMA_ARBITRARY=1 \
 -d phpmyadmin/phpmyadmin
-
 
 // รัน WordPress
 docker run -d --name wordpress \
@@ -110,3 +113,38 @@ exit
 
 // เข้าโฟลเดอร์
 cd ชื่อโฟลเดอร์
+
+//แสดง volume คอนเทนเนอร์ทั้งหมด 
+docker volume ls
+
+//สร้าง volume
+docker volume create <name>
+
+//ลบ volume
+docker volume rm  <name>
+
+//ที่อยู่ container inspect wordpress
+docker container inspect <wordpress>
+
+//แบบที่ 2 volume
+docker volume create wp_volume   
+docker volume create wordpress
+docker network create wordpress02
+docker run -d --name mysql02 --network wordpress02 -v mysql_volume:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1111 -e MYSQL_DATABASE=wordpress02_db -e MYSQL_USER=wordpress -e MYSQL_PASSWORD=wordpress  mysql:5.7
+docker run -d --name wordpress02 --network wordpress02 -v wp_volume:/var/www/html -e WORDPRESS_DB_HOST=mysql02 -e WORDPRESS_DB_USER=wordpress -e WORDPRESS_DB_PASSWORD=wordpress -e WORDPRESS_DB_NAME=wordpress02_db -p 889:80 wordpress
+docker run --name pma02 --network wordpress02 -p 8889:80 -e PMA_ARBITRARY=1 -d phpmyadmin/phpmyadmin
+
+//แบบที่ 3 mount
+docker network create wordpress03 
+docker run -d --name mysql03 --network wordpress03 -v C:\docker101\mysql:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1111 -e MYSQL_DATABASE=wordpress03_db -e MYSQL_USER=wordpress -e MYSQL_PASSWORD=wordpress  mysql:5.7
+docker run -d --name wordpress03 --network wordpress03 -v C:\docker101\wp:/var/www/html -e WORDPRESS_DB_HOST=mysql03 -e WORDPRESS_DB_USER=wordpress -e WORDPRESS_DB_PASSWORD=wordpress -e WORDPRESS_DB_NAME=wordpress03_db -p 890:80 wordpress
+docker run --name pma03 --network wordpress03 -p 8890:80 -e PMA_ARBITRARY=1 -d phpmyadmin/phpmyadmin
+
+//รันหลายคอนเทนเนอร์พร้อมกัน ตามที่กำหนดไว้ในไฟล์ docker-compose.yml
+docker-compose up -d
+
+//หยุดคอนเทนเนอร์
+docker-compose down
+
+//โหลด GUI
+docker run -d -p 8000:8000 -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
